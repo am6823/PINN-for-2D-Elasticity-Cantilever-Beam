@@ -1,71 +1,155 @@
-# PINN-for-2D-Elasticity-Cantilever-Beam
+# Physics-Informed Neural Network for 2D Elasticity  
+### Cantilever Beam Benchmark
 
-This repository contains a complete implementation of a **Physics-Informed Neural Network (PINN)** for the classical **2D cantilever beam** benchmark in linear elasticity.
+This repository presents a complete and reproducible implementation of a **Physics-Informed Neural Network (PINN)** applied to a classical **2D cantilever beam** benchmark in linear elasticity.
 
-Both stages of the project are implemented and fully functional in the notebook:
+The project investigates whether a PINN can accurately recover displacement and stress fields governed by the equations of linear elasticity, and how its performance compares to a standard finite element (FEA) solution.
 
-- **Stage 1 — Physics-Only PINN**  
-  The model learns the entire elasticity problem (PDE, boundary conditions, constitutive law, bending/moment constraints, beam-theory priors) **without any labeled data**.
-
-- **Stage 2 — Hybrid PINN (Physics + Sparse FEA Data)**  
-  A second training mode incorporates **selected FEA displacements/stresses** to refine accuracy, while still enforcing all physical constraints.
-
-The notebook reproduces displacement fields, stress distributions, moment diagrams, neutral-axis behavior, and compares the results against a reference FEA solution.
+Two training regimes are implemented and analyzed: a purely physics-informed model and a hybrid physics-and-data formulation.
 
 ---
 
-## Current Status
+## Project Overview
 
-**Physics-only PINN: complete**  
-**Hybrid PINN with FEA data: complete**  
-**Google Colab notebook: full workflow implemented**  
-**Modular `src/` code:** partially implemented, will be finalized later  
-**Full documentation:** coming soon  
+### Stage 1 — Physics-Only PINN  
+A fully physics-informed model trained **without any labeled data**.  
+The network enforces:
+- equilibrium equations (strong form),
+- plane-stress constitutive law,
+- clamped and traction-free boundary conditions,
+- global force balance at the free end,
+- beam-theory–inspired constraints (moment balance, neutral axis, curvature priors).
 
-The main development and experimentation currently occur in the notebook, which serves as the authoritative and complete version of the method.
+This stage demonstrates that a PINN can recover the global bending response and stress distribution using physics alone.
+
+### Stage 2 — Hybrid PINN (Physics + Sparse FEA Data)  
+Starting from the physics-only solution, a second training stage incorporates **selected finite element displacements and stresses** into the loss function.  
+The goal is to refine local field accuracy—especially stresses near the clamped boundary—while preserving mechanical consistency.
 
 ---
 
+## Reports
 
-## Problem Summary
+This repository includes two PDF reports documenting the project at different levels of detail:
 
-We solve a 2D cantilever beam under transverse loading using linear elasticity:
+- 📄 **Mini Report**  
+  Concise technical summary of the formulation, methodology, and key results.
+
+- 📘 **Full Report**  
+  Complete documentation including:
+  - problem formulation,
+  - PINN architecture and loss design,
+  - benchmarking against FEA,
+  - error analysis,
+  - data-assisted extension,
+  - discussion and perspectives.
+
+Both reports describe the same project, with different depths intended for quick review or in-depth reading.
+
+---
+
+## Problem Description
+
+The benchmark problem consists of a **2D cantilever beam under transverse loading**, modeled using linear elasticity:
 
 - Plane-stress constitutive law  
 - Governing PDE:  
   ∇ · σ = 0  
-- Clamped boundary at x = x_min  
-- Free traction boundaries on top/bottom  
-- Shear resultant matching the applied load  
+- Fully clamped boundary at the left edge  
+- Traction-free top and bottom boundaries  
+- Prescribed shear resultant at the free end  
 - Bending moment consistency  
 
-The hybrid version additionally integrates selected FEA nodal quantities.
+A finite element solution (OptiStruct) is used as a reference for validation.
 
 ---
 
 ## Usage
 
-Run the full solution through the notebook: CantileverBeam_PINN.ipynb
+The full workflow is implemented in the Jupyter notebook:
 
+```text
+CantileverBeam_PINN.ipynb
+```
 
-It includes:
+The notebook includes:
+- mesh loading and preprocessing
+- geometry and boundary extraction
+- physics-only PINN training
+- hybrid PINN fine-tuning with FEA data
+- convergence histories
+- displacement and stress field visualization
+- quantitative comparison with a finite element reference solution
 
-- mesh loading  
-- geometry/boundary extraction  
-- physics-only and hybrid PINN training  
-- convergence plots  
-- displacement/stress fields  
-- comparison to FEA reference  
+---
+
+## Repository Structure
+
+```text
+├── CantileverBeam_PINN.ipynb
+├── reports/
+│   ├── mini_report.pdf
+│   └── full_report.pdf
+├── data/
+│   ├── 01/
+│   │   ├── raw/
+│   │   ├── fea_raw/
+│   │   └── fea_processed/
+│   ├── 02/
+│   │   ├── raw/
+│   │   ├── fea_raw/
+│   ├── ...
+│   ├── 15/
+│   │   ├── raw/
+│   │   ├── fea_raw/
+│   │   └── fea_processed/
+│   └── case_catalog.(csv/xlsx)
+├── src/
+│   └── (early modular drafts)
+```
+
+The `src/` directory contains early drafts of a modular implementation.  
+It will be completed and fully connected to the notebook in a future refactor.
+
+The `data/` directory contains a set of **15 parametric finite element (FEA) cases**
+used for validation and for the hybrid physics–data PINN training stage.
+
+Each case (`01`–`15`) corresponds to a unique combination of problem parameters
+(e.g. loading or material properties) and follows a consistent internal structure:
+
+- `raw/`  
+  Original FEA solver input and output files, as generated by the simulation
+  workflow. This directory ensures full reproducibility of the reference solutions.
+
+- `fea_raw/`  
+  Raw field data exported from the FEA solver, typically stored as tabular files
+  (e.g. nodal displacements and stress components). These files retain the original
+  discretization and units of the finite element model.
+
+For **Case `01` only**, an additional directory is provided:
+
+- `fea_processed/`  
+  Post-processed data derived from `fea_raw/`, created specifically for this study.
+  In particular, this directory contains nodal-averaged stress fields
+  (e.g. `σ_xx` averaged at nodes), which were required for detailed stress comparison
+  and analysis.
+
+The `case_catalog` file provides a global index of the dataset, mapping each case
+identifier to its corresponding parameter values.
 
 ---
 
 ## Notes
 
-The `src/` directory already contains early drafts of the modular architecture.  
-They will be completed and connected to the notebook at a later stage.
+This project is intended as a **research-oriented benchmark**, not as a
+replacement for classical finite element analysis.
+
+Its goal is to explore the strengths and limitations of PINNs for solid
+mechanics and to serve as a foundation for future work on:
+- parameterized surrogates
+- hybrid physics–data models
+- mesh-based architectures (e.g. graph neural networks)
 
 ---
-
-
 
 
