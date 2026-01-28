@@ -7,7 +7,7 @@ The project investigates whether a PINN can accurately recover displacement and 
 
 Two training regimes are implemented and analyzed: a purely physics-informed model and a hybrid physics-and-data formulation.
 
----
+
 
 ## Project Overview
 
@@ -26,16 +26,16 @@ This stage demonstrates that a PINN can recover the global bending response and 
 Starting from the physics-only solution, a second training stage incorporates **selected finite element displacements and stresses** into the loss function.  
 The goal is to refine local field accuracy—especially stresses near the clamped boundary—while preserving mechanical consistency.
 
----
+
 
 ## Reports
 
 This repository includes two PDF reports documenting the project at different levels of detail:
 
-- 📄 **Mini Report**  
+- **Mini Report**  
   Concise technical summary of the formulation, methodology, and key results.
 
-- 📘 **Full Report**  
+- **Full Report**  
   Complete documentation including:
   - problem formulation,
   - PINN architecture and loss design,
@@ -46,7 +46,7 @@ This repository includes two PDF reports documenting the project at different le
 
 Both reports describe the same project, with different depths intended for quick review or in-depth reading.
 
----
+
 
 ## Problem Description
 
@@ -62,7 +62,7 @@ The benchmark problem consists of a **2D cantilever beam under transverse loadin
 
 A finite element solution (OptiStruct) is used as a reference for validation.
 
----
+
 
 ## Usage
 
@@ -81,7 +81,7 @@ The notebook includes:
 - displacement and stress field visualization
 - quantitative comparison with a finite element reference solution
 
----
+
 
 ## Repository Structure
 
@@ -137,7 +137,7 @@ For **Case `01` only**, an additional directory is provided:
 The `case_catalog` file provides a global index of the dataset, mapping each case
 identifier to its corresponding parameter values.
 
----
+
 
 ## Notes
 
@@ -150,6 +150,6 @@ mechanics and to serve as a foundation for future work on:
 - hybrid physics–data models
 - mesh-based architectures (e.g. graph neural networks)
 
----
+
 
 
